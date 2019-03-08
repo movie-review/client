@@ -1,5 +1,46 @@
+function navPopular() {
+  event.preventDefault();
+  $('#search-nav').hide();
+  $('#movie-list').empty();
+  $('#movie--section .spinner').show();
+
+  $.ajax({
+    method: 'get',
+    url: 'http://localhost:3000/tmdb/movies/popular'
+  })
+    .done(response => {
+      console.log(response);
+      let movies = response['results'];
+      $('#movie--section .spinner').hide();
+      // console.log(movies);
+      $.each(movies, (idx, movie) => {
+        if (movie.poster_path) {
+          $('#movie-list').append(`
+              <div class="col-md-4">
+                <div class="card mb-3">
+                  <img src="http://image.tmdb.org/t/p/w342/${movie.poster_path}" class="card-img-top">
+                  <div class="card-body">
+                    <h5 class="card-title">${movie.title}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">${movie.release_date.slice(0, 4)}</h6>
+                    <a href="#" class="card-link see-detail" data-toggle="modal" data-target="#exampleModal" data-id="${movie.id}">See Detail</a>
+                  </div>
+                </div>
+              </div>
+              `).hide().fadeIn(400);
+        }
+      });
+    })
+    .fail(err => {
+
+    });
+}
+
+
+
 function navSearch() {
   event.preventDefault();
+
+  $('#search-nav').show();
   $('#movie-list').empty();
   $('#search-input').val('');
 }
@@ -19,6 +60,8 @@ function onSignIn(googleUser) {
       $('#g-signin-button').hide();
       $('#user-info').show()
       $('#signout-button').show()
+      $('#isLogin').show();
+      $('#notLogin').hide();
 
       $('#currentUser').html(`
         <a class="nav-item nav-link">${response.name}</a>
@@ -36,7 +79,8 @@ function signOut() {
     .then(function () {
       localStorage.removeItem('token');
       // console.log('User signed out.');
-
+      $('#isLogin').hide();
+      $('#notLogin').show();
       $('#user-info').hide()
       $('#g-signin-button').show()
       $('#signout-button').hide()
@@ -48,6 +92,8 @@ function signOut() {
 }
 
 function searchMovies() {
+  $('#movie--section .spinner').show();
+  $('#movie-list').empty();
   let title = $('#search-input').val();
   if (!title) {
     Swal.fire(
@@ -65,6 +111,7 @@ function searchMovies() {
       }
     })
       .done(response => {
+        $('#movie--section .spinner').hide();
         if (!response.total_results) {
           $('#movie-list').html(`
           <div class="col">
@@ -89,7 +136,7 @@ function searchMovies() {
                   </div>
                 </div>
               </div>
-              `);
+              `).hide().fadeIn(400);
             }
           });
           $('#search-input').val('');
@@ -138,7 +185,7 @@ function getActor(id, cb) {
     }
   })
     .done(response => {
-      let actor  = response['cast'][0].name;
+      let actor = response['cast'][0].name;
       // console.log(actor);
       cb(actor);
     })
@@ -182,9 +229,9 @@ $('#movie-list').on('click', '.see-detail', function () {
     }
   })
     .done(movie => {
-      
+
       youtubeTrailer(movie.original_title);
-      getActor(movie.id, function(data) {
+      getActor(movie.id, function (data) {
         movieQuotes(data);
       });
       $('.modal-body').html(`
@@ -211,12 +258,12 @@ $('#movie-list').on('click', '.see-detail', function () {
         </div>
       `)
       getComments(movie.id)
-      $('#enterSomething').keyup(function(e) {
+      $('#enterSomething').keyup(function (e) {
         var code = e.which
-        if(code === 13) {
+        if (code === 13) {
           e.preventDefault()
         }
-        if(code === 13) {
+        if (code === 13) {
           addComment($('#currentUser a')[0].innerHTML, movie.id, $('#enterSomething').val())
         }
       })
@@ -231,17 +278,17 @@ function getComments(id) {
     method: 'get',
     url: `http://localhost:3000/users/comment/${id}`
   })
-  .done(comments => {
-    comments.reverse()
-    let html = ``
-    comments.forEach(comment => {
-      html += `<p>${comment.name}: ${comment.comment}</p>`
+    .done(comments => {
+      comments.reverse()
+      let html = ``
+      comments.forEach(comment => {
+        html += `<p>${comment.name}: ${comment.comment}</p>`
+      })
+      $('#commentSection').append(html)
     })
-    $('#commentSection').append(html)
-  })
-  .fail(err => {
-    console.log(err)
-  })
+    .fail(err => {
+      console.log(err)
+    })
 }
 
 function addComment(name, movieId, comment) {
@@ -254,11 +301,11 @@ function addComment(name, movieId, comment) {
       comment
     }
   })
-  .done(result => {
-    let html = `<p>${result.name}: ${result.comment}</p>`
-    $('#commentSection').prepend(html)
-  })
-  .fail(err => {
-    console.log(err)
-  })
+    .done(result => {
+      let html = `<p>${result.name}: ${result.comment}</p>`
+      $('#commentSection').prepend(html)
+    })
+    .fail(err => {
+      console.log(err)
+    })
 }
