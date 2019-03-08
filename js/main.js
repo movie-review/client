@@ -169,6 +169,7 @@ function movieQuotes(actorName) {
     })
 }
 
+
 $('#movie-list').on('click', '.see-detail', function () {
   // console.log($(this).data('id'));
   let id = $(this).data('id');
