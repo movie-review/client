@@ -142,7 +142,7 @@ function getActor(id, cb) {
       // console.log(actor);
       cb(actor);
     })
-    .catch(err => {
+    .fail(err => {
       console.log(err)
     });
 }
@@ -204,10 +204,60 @@ $('#movie-list').on('click', '.see-detail', function () {
           </div>
           <h5 class="my-4"><strong>Trailer<strong></h5>
           <div id="trailer"></div>
+          <h5 class="my-4"><strong>Comments<strong></h5>
+          <input type="text" id="enterSomething"><br><br>
+          <div id="commentSection"></div>
         </div>
       `)
+      getComments(movie.id)
+      $('#enterSomething').keyup(function(e) {
+        var code = e.which
+        if(code === 13) {
+          e.preventDefault()
+        }
+        if(code === 13) {
+          addComment($('#currentUser a')[0].innerHTML, movie.id, $('#enterSomething').val())
+        }
+      })
     })
     .fail(err => {
       console.log(err);
     });
 });
+
+function getComments(id) {
+  $.ajax({
+    method: 'get',
+    url: `http://localhost:3000/users/comment/${id}`
+  })
+  .done(comments => {
+    comments.reverse()
+    let html = ``
+    comments.forEach(comment => {
+      html += `<p>${comment.name}: ${comment.comment}</p>`
+    })
+    $('#commentSection').append(html)
+  })
+  .fail(err => {
+    console.log(err)
+  })
+}
+
+function addComment(name, movieId, comment) {
+  $.ajax({
+    method: 'post',
+    url: `http://localhost:3000/users/comment`,
+    data: {
+      name,
+      movieId,
+      comment
+    }
+  })
+  .done(result => {
+    let html = `<p>${result.name}: ${result.comment}</p>`
+    $('#commentSection').prepend(html)
+  })
+  .fail(err => {
+    console.log(err)
+  })
+}
