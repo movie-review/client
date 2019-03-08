@@ -1,3 +1,10 @@
+$('#exampleModal').keyup(function (e) {
+  var code = e.which
+  if (code === 27) {
+    closeModal()
+  }
+})
+
 function navPopular() {
   event.preventDefault();
   $('#search-nav').hide();
@@ -149,7 +156,7 @@ function searchMovies() {
 }
 
 function closeModal() {
-  $('.modal-body').html('');
+  $('.modal-body').empty();
 }
 
 function youtubeTrailer(title) {
