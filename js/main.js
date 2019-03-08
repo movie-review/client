@@ -149,7 +149,7 @@ function searchMovies() {
 }
 
 function closeModal() {
-  $('.modal-body').html('');
+  $('.modal-body').empty();
 }
 
 function youtubeTrailer(title) {
