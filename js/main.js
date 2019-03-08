@@ -1,3 +1,10 @@
+$('#exampleModal').keyup(function (e) {
+  var code = e.which
+  if (code === 27) {
+    closeModal()
+  }
+})
+
 function navPopular() {
   event.preventDefault();
   $('#search-nav').hide();
